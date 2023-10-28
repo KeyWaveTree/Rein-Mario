@@ -6,6 +6,7 @@ from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QBrush, QColor
 import numpy as np
 import random
 
+#
 relu = lambda x: np.maximum(0, x)
 sigmoid = lambda x: 1.0 / (1.0 + np.exp(-x))
 
