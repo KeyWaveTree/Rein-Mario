@@ -1,0 +1,1 @@
+#Fully Connected Neural Networks- 완전 연결 신경망: 개수를 바꾼다.
