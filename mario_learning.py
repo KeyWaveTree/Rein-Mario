@@ -1,10 +1,13 @@
-import retro
-import sys
+
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QBrush, QColor
+
 import numpy as np
 import random
+import retro
+import sys
+import os
 
 #
 relu = lambda x: np.maximum(0, x)
@@ -37,6 +40,8 @@ class Chromosome:
 
 class GeneticAlgorithm:
     def __init__(self):
+        if not os.path.exists()
+        
         self.chromosomes = [Chromosome() for _ in range(10)]
         self.generation = 0
         self.current_chromosome_index = 0
@@ -97,6 +102,22 @@ class GeneticAlgorithm:
         self.static_mutation(chromosome.b2)
 
     def next_generation(self):
+
+        if not os.path.exists('../model'):
+            os.mkdir('../model')
+
+        if not os.path.exists('../model/Generation'):
+            os.mkdir('../model/Generation')
+
+        for chromosome_number in range(len(self.chromosomes)):
+            if not os.path.exists(f'../model/Generation/{chromosome_number}'):
+                os.mkdir(f'../model/Generation/{chromosome_number}')
+
+            np.save(f'../model/Generation/{chromosome_number}/w1.npy', self.chromosomes[chromosome_number].w1)
+            np.save(f'../model/Generation/{chromosome_number}/b1.npy', self.chromosomes[chromosome_number].b1)
+            np.save(f'../model/Generation/{chromosome_number}/w2.npy', self.chromosomes[chromosome_number].w2)
+            np.save(f'../model/Generation/{chromosome_number}/b2.npy', self.chromosomes[chromosome_number].b2)
+
         print(f'{self.generation}세대 시뮬레이션 완료.')
 
         next_chromosomes = []
@@ -149,6 +170,48 @@ class LearingMario(QWidget):
         self.game_timer = QTimer(self)
         self.game_timer.timeout.connect(self.update_game)
         self.game_timer.start(1000 // 60)
+
+        # mario Ram information
+        self.ram = self.env.get_ram()
+        self.full_screen_tiles = self.ram[0x0500:0x069F + 1]
+        self.full_screen_tile_count = self.full_screen_tiles.shape[0]
+
+        self.full_screen_page1_tile = self.full_screen_tiles[:self.full_screen_tile_count // 2].reshape((13, 16))
+        self.full_screen_page2_tile = self.full_screen_tiles[self.full_screen_tile_count // 2:].reshape((13, 16))
+
+        self.full_screen_tiles = np.concatenate((self.full_screen_page1_tile,
+                                                 self.full_screen_page2_tile), axis=1).astype(np.int)
+
+        # enumy memory information
+        self.enemy_drawn = self.ram[0x000F:0x0013 + 1]
+        self.enemy_horizon_position = self.ram[0x006E:0x0072 + 1]
+        self.enemy_screen_position_x = self.ram[0x0087:0x008B + 1]
+        self.enemy_position_y = self.ram[0x00CF:0x00D3 + 1]
+        self.enemy_position_x = (self.enemy_horizon_position * 256 + self.enemy_screen_position_x) % 512
+
+        #page and display information ram
+        self.current_screen_page = self.ram[0x071A]
+        self.screen_position = self.ram[0x071C]
+        self.screen_offset = (256 * self.current_screen_page + self.screen_position) % 512
+        self.screen_tile_offset = self.screen_offset // 16
+
+        self.screen_tiles = np.concatenate(
+            (self.full_screen_tiles, self.full_screen_tiles),
+            axis=1)[:, self.screen_tile_offset: self.screen_tile_offset + 16]
+
+
+        #player x, y position information
+        self.player_position_x = self.ram[0x03AD]
+        self.player_position_y = self.ram[0x03B8]
+
+        #player horizon and screen_x position information
+        self.player_horizon_position = self.ram[0x006D]
+        self.player_screen_position_x = self.ram[0x0086]
+
+        #player state and player_vertical_screen_position information
+        self.player_float_state = self.ram[0x001D]
+        self.player_state = self.ram[0x000E]
+        self.player_vertical_screen_position = self.ram[0x00B5]
 
         # 창 띄우기
         self.show()
@@ -289,4 +352,5 @@ class LearingMario(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = LearingMario()
+
     sys.exit(app.exec_())

@@ -9,7 +9,7 @@ class MarioGame(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.env = retro.make(game="SuperMarioBros-nes", state='Level1-1')
+        self.env = retro.make(game="SuperMarioBros-nes", state='Level1-1' )
         self.env.reset()
 
         screen_size = int(input('몇배로 출력할건가요?:'))
