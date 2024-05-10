@@ -40,7 +40,7 @@ class Chromosome:
 
 class GeneticAlgorithm:
     def __init__(self):
-        if not os.path.exists()
+        #if not os.path.exists()
         
         self.chromosomes = [Chromosome() for _ in range(10)]
         self.generation = 0
