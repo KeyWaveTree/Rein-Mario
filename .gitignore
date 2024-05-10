@@ -3,6 +3,7 @@ __pycache__/
 *$py.class
 final/
 lab_AI/
-lab_Mario/
-PyQt/
+lab_Mario/Qulz-Mario/*
+PyQt/Quiz-PyQt/*
 Retry/*
+/Rom/*
